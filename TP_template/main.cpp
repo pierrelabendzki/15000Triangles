@@ -1,7 +1,7 @@
 #include <glimac/SDLWindowManager.hpp>
 #include <GL/glew.h>
 #include <iostream>
-
+"tes parents doivent etre fieres de toi"
 using namespace glimac;
 
 int main(int argc, char** argv) {
