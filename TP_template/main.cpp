@@ -1,6 +1,9 @@
 #include <glimac/SDLWindowManager.hpp>
 #include <GL/glew.h>
+#include <glimac/FilePath.hpp>
+#include <glimac/Program.hpp>
 #include <iostream>
+#include <vector>
 using namespace glimac;
 
 int main(int argc, char** argv) {
@@ -45,7 +48,7 @@ int main(int argc, char** argv) {
 
     
 
-    GLuint ibPositionsSommetsID;
+    GLuint ibPositionsID;
     glGenBuffers(1, &ibPositionsID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibPositionsID);
 
@@ -58,7 +61,7 @@ int main(int argc, char** argv) {
         0,5,6, 0,6,1
     };
 
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_indexSommets), _indexSommets, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexSommets), indexSommets, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 
@@ -69,7 +72,7 @@ int main(int argc, char** argv) {
     glBindBuffer(GL_ARRAY_BUFFER,vbPositionsID);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),0);
-    glBindBuffer(GL_ARRAY_BUFFER,0)
+    glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
 
 
