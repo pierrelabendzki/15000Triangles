@@ -4,12 +4,18 @@
 #include <glimac/Program.hpp>
 #include <iostream>
 #include <vector>
+#include <glm/glm.hpp> 
+#include <glm/gtc/matrix_transform.hpp>
+
 using namespace glimac;
 
 int main(int argc, char** argv) {
     // Initialize SDL and open a window
-    SDLWindowManager windowManager(800, 600, "GLImac");
-
+    
+    int LONGUEUR = 800;
+    int HAUTEUR = 800;
+    float RATIO = LONGUEUR/HAUTEUR;
+    SDLWindowManager windowManager(LONGUEUR, HAUTEUR, "GLImac");
     // Initialize glew for OpenGL3+ support
     GLenum glewInitError = glewInit();
     if(GLEW_OK != glewInitError) {
@@ -24,6 +30,8 @@ int main(int argc, char** argv) {
     FilePath applicationPath(argv[0]);
     Program program = loadProgram(applicationPath.dirPath() + "shaders/"+argv[1],applicationPath.dirPath() + "shaders/"+argv[2]);
     program.use();
+
+
     /*********************************
      * HERE SHOULD COME THE INITIALIZATION CODE
      *********************************/
@@ -75,7 +83,9 @@ int main(int argc, char** argv) {
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
 
-
+    glm::mat4 Mprojo = glm::perspective(glm::radians(70.f),RATIO,0.1f,100.f);
+    GLuint MprojoID = glGetUniformLocation(program.getGLId(),"Mprojo");
+    glUniformMatrix4fv(MprojoID,1,GL_FALSE,glm::value_ptr(Mprojo));
     // Application loop:
     bool done = false;
     while(!done) {
