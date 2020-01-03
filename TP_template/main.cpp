@@ -6,12 +6,16 @@
 #include <vector>
 #include <glm/glm.hpp> 
 #include <glm/gtc/matrix_transform.hpp>
-// #include "FreeflyCamera.hpp"
+#include "glimac/FreeflyCamera.hpp"
 
 using namespace glimac;
 
 
 int main(int argc, char** argv) {
+
+    FreeflyCamera camera;
+
+
     // Initialize SDL and open a window
     int nbCubes = 3; 
     int LONGUEUR = 800;
@@ -101,10 +105,8 @@ int main(int argc, char** argv) {
     glm::mat4 Mprojo = glm::perspective(glm::radians(70.f),RATIO,0.1f,1000.f);
     GLuint MprojoID = glGetUniformLocation(program.getGLId(),"Mprojo");
     glUniformMatrix4fv(MprojoID,1,GL_FALSE,glm::value_ptr(Mprojo));
-
-
   
-    glm::mat4 MVMatrix= glm::translate(glm::mat4(), glm::vec3(1.0, -1., -5.));
+    glm::mat4 MVMatrix= glm::translate(glm::mat4(), glm::vec3(0., 0., 0.));
     GLuint MVMatrixID = glGetUniformLocation(program.getGLId(),"MVMatrix");
     glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
 
@@ -112,6 +114,8 @@ int main(int argc, char** argv) {
     GLuint NormalMatrixID = glGetUniformLocation(program.getGLId(),"NormalMatrix");
     glUniformMatrix4fv(NormalMatrixID,1,GL_FALSE,glm::value_ptr(NormalMatrix));
 
+    glm::mat4 MatrixView = camera.getViewMatrix();
+    GLuint MatrixViewID = glGetUniformLocation(program.getGLId(),"MatrixView");
 
     // Application loop:
     bool done = false;
@@ -136,8 +140,11 @@ int main(int argc, char** argv) {
             for(int j = -30; j < 30 ; j++) {
                 MVMatrix= glm::translate(glm::mat4(), glm::vec3(2*i, -1., 2*j));
                 glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
-                //glUniform1f(iterZ,i);
-                //glUniform1f(iterX,j);
+                camera.rotateLeft(0.0001);
+                camera.moveLeft(0.00001);
+                
+                MatrixView = camera.getViewMatrix();
+                glUniformMatrix4fv(MatrixViewID,1,GL_FALSE,glm::value_ptr(MatrixView));
                 glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
             }
         }
