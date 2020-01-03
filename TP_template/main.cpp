@@ -126,6 +126,48 @@ int main(int argc, char** argv) {
             if(e.type == SDL_QUIT) {
                 done = true; // Leave the loop after this iteration
             }
+            switch(e.type){
+                case SDL_MOUSEMOTION:
+                    if (SDL_BUTTON(SDL_BUTTON_LEFT) & e.motion.state)
+                    {
+                        camera.rotateLeft(e.motion.xrel);
+                        camera.rotateUp(e.motion.yrel);
+                    }
+                    break;
+                case SDL_KEYDOWN:
+                    // AXE : x=0 y=1 z=2
+                    if (e.key.keysym.sym == SDLK_z) {
+                        camera.moveFront(-0.1);
+                    }
+                    else if (e.key.keysym.sym == SDLK_s) {
+                        camera.moveFront(0.1);
+                    }
+                    else if (e.key.keysym.sym == SDLK_q) {
+                        camera.moveLeft(-0.1);
+                    }
+                    else if (e.key.keysym.sym == SDLK_d) {
+                        camera.moveLeft(0.1);
+                    }
+                    else if (e.key.keysym.sym == SDLK_UP) {
+                        camera.moveUp(0.1);
+                    }
+                    else if (e.key.keysym.sym == SDLK_DOWN) {
+                        camera.moveUp(-0.1);
+                    }
+                    //  else if (e.key.keysym.scancode == SDL_SCANCODE_Y) {
+                    //     axe = 1;
+                    // } else if (e.key.keysym.scancode == SDL_SCANCODE_W) { 
+                    //     axe = 2; 
+                    // }
+
+                    // if (e.key.keysym.sym == SDLK_UP) {
+                    //     cursor.changeCoord(axe, 1);
+                    //     std::cout<<"en haut"<<std::endl;
+                    // } else if (e.key.keysym.sym == SDLK_DOWN){
+                    //     cursor.changeCoord(axe, -1);
+                    //     std::cout<<"en bas"<< cursor.coord <<std::endl;
+                    // }
+            }
         }
 
         /*********************************
@@ -140,8 +182,8 @@ int main(int argc, char** argv) {
             for(int j = -30; j < 30 ; j++) {
                 MVMatrix= glm::translate(glm::mat4(), glm::vec3(2*i, -1., 2*j));
                 glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
-                camera.rotateLeft(0.0001);
-                camera.moveLeft(0.00001);
+                // camera.rotateLeft(0.);
+                // camera.moveLeft(0.00001);
                 
                 MatrixView = camera.getViewMatrix();
                 glUniformMatrix4fv(MatrixViewID,1,GL_FALSE,glm::value_ptr(MatrixView));
