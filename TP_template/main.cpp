@@ -9,9 +9,14 @@
 
 using namespace glimac;
 
+
+
+
+
+
 int main(int argc, char** argv) {
     // Initialize SDL and open a window
-    
+    int nbCubes = 3; 
     int LONGUEUR = 800;
     int HAUTEUR = 800;
     float RATIO = LONGUEUR/HAUTEUR;
@@ -22,6 +27,8 @@ int main(int argc, char** argv) {
         std::cerr << glewGetErrorString(glewInitError) << std::endl;
         return EXIT_FAILURE;
     }
+    glEnable(GL_DEPTH_TEST); 
+
 
     std::cout << "OpenGL Version : " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEW Version : " << glewGetString(GLEW_VERSION) << std::endl;
@@ -31,6 +38,10 @@ int main(int argc, char** argv) {
     Program program = loadProgram(applicationPath.dirPath() + "shaders/"+argv[1],applicationPath.dirPath() + "shaders/"+argv[2]);
     program.use();
 
+    GLuint iterZ = glGetUniformLocation(program.getGLId(),"iterZ");
+    glUniform1f(iterZ,1);
+    GLuint iterX = glGetUniformLocation(program.getGLId(),"iterX");
+    glUniform1f(iterX,1);
 
     /*********************************
      * HERE SHOULD COME THE INITIALIZATION CODE
@@ -71,6 +82,19 @@ int main(int argc, char** argv) {
 
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexSommets), indexSommets, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    
+
+
+    GLuint vbPositionsCubesID;
+    glGenBuffers(1, &vbPositionsCubesID); 
+    glBindBuffer(GL_ARRAY_BUFFER, vbPositionsCubesID); 
+    float positionsCubes[] = {
+    -2, -1, -3,
+     0, -1, -3,
+     2, -1, -3,
+    };
+    glBufferData(GL_ARRAY_BUFFER, sizeof(positionsCubes), positionsCubes, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
     GLuint vertexArrayID;
@@ -80,12 +104,29 @@ int main(int argc, char** argv) {
     glBindBuffer(GL_ARRAY_BUFFER,vbPositionsID);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbPositionsCubesID);
+    glEnableVertexAttribArray(1); 
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+
+    //glVertexAttribDivisor(1, 1);
+
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
 
-    glm::mat4 Mprojo = glm::perspective(glm::radians(70.f),RATIO,0.1f,100.f);
+
+
+    glm::mat4 Mprojo = glm::perspective(glm::radians(70.f),RATIO,0.1f,1000.f);
     GLuint MprojoID = glGetUniformLocation(program.getGLId(),"Mprojo");
     glUniformMatrix4fv(MprojoID,1,GL_FALSE,glm::value_ptr(Mprojo));
+  
+    // glm::mat4 MpositionsCubes = glm::translate(MpositionsCubes, glm::vec3(0.1 , -1., -4.));
+    // GLuint MpositionsCubesID = glGetUniformLocation(program.getGLId(),"MpositionsCubes");
+    // glUniformMatrix4fv(MpositionsCubesID,1,GL_FALSE,glm::value_ptr(MpositionsCubes));
+
+
+
+
     // Application loop:
     bool done = false;
     while(!done) {
@@ -100,11 +141,22 @@ int main(int argc, char** argv) {
         /*********************************
          * HERE SHOULD COME THE RENDERING CODE
          *********************************/
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glBindVertexArray(vertexArrayID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibPositionsID);
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        
+        for (int i = -30; i < 30 ; i++) {
+            for(int j = -30; j < 30 ; j++) {
+                glUniform1f(iterZ,i);
+                glUniform1f(iterX,j);
+                glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+            }
+        }
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
+        
+       
 
         // Update the display
         windowManager.swapBuffers();
