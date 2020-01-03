@@ -6,12 +6,9 @@
 #include <vector>
 #include <glm/glm.hpp> 
 #include <glm/gtc/matrix_transform.hpp>
+// #include "FreeflyCamera.hpp"
 
 using namespace glimac;
-
-
-
-
 
 
 int main(int argc, char** argv) {
@@ -88,13 +85,6 @@ int main(int argc, char** argv) {
     GLuint vbPositionsCubesID;
     glGenBuffers(1, &vbPositionsCubesID); 
     glBindBuffer(GL_ARRAY_BUFFER, vbPositionsCubesID); 
-    float positionsCubes[] = {
-    -2, -1, -3,
-     0, -1, -3,
-     2, -1, -3,
-    };
-    glBufferData(GL_ARRAY_BUFFER, sizeof(positionsCubes), positionsCubes, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
     GLuint vertexArrayID;
@@ -105,26 +95,22 @@ int main(int argc, char** argv) {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbPositionsCubesID);
-    glEnableVertexAttribArray(1); 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-
-    //glVertexAttribDivisor(1, 1);
-
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
-
-
 
     glm::mat4 Mprojo = glm::perspective(glm::radians(70.f),RATIO,0.1f,1000.f);
     GLuint MprojoID = glGetUniformLocation(program.getGLId(),"Mprojo");
     glUniformMatrix4fv(MprojoID,1,GL_FALSE,glm::value_ptr(Mprojo));
+
+
   
-    // glm::mat4 MpositionsCubes = glm::translate(MpositionsCubes, glm::vec3(0.1 , -1., -4.));
-    // GLuint MpositionsCubesID = glGetUniformLocation(program.getGLId(),"MpositionsCubes");
-    // glUniformMatrix4fv(MpositionsCubesID,1,GL_FALSE,glm::value_ptr(MpositionsCubes));
+    glm::mat4 MVMatrix= glm::translate(glm::mat4(), glm::vec3(1.0, -1., -5.));
+    GLuint MVMatrixID = glGetUniformLocation(program.getGLId(),"MVMatrix");
+    glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
 
-
+    glm::mat4 NormalMatrix = glm::transpose(glm::inverse(MVMatrix));
+    GLuint NormalMatrixID = glGetUniformLocation(program.getGLId(),"NormalMatrix");
+    glUniformMatrix4fv(NormalMatrixID,1,GL_FALSE,glm::value_ptr(NormalMatrix));
 
 
     // Application loop:
@@ -146,10 +132,12 @@ int main(int argc, char** argv) {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibPositionsID);
         //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
         
-        for (int i = -30; i < 30 ; i++) {
+        for (int i = -30; i < 30 ; i++) {//on crée un pavage de 60 cubes sur 60 centré en 0.
             for(int j = -30; j < 30 ; j++) {
-                glUniform1f(iterZ,i);
-                glUniform1f(iterX,j);
+                MVMatrix= glm::translate(glm::mat4(), glm::vec3(2*i, -1., 2*j));
+                glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
+                //glUniform1f(iterZ,i);
+                //glUniform1f(iterX,j);
                 glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
             }
         }

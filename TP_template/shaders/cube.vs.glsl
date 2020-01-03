@@ -6,6 +6,10 @@ layout (location = 0) in vec3 aPosition;
 //layout (location = 1) in vec3 aPositionCube;
 
 uniform mat4 Mprojo;
+uniform mat4 MVMatrix;
+uniform mat4 NormalMatrix;
+
+
 uniform float iterZ;
 uniform float iterX;
 
@@ -16,5 +20,5 @@ void main() {
 	float a = iterZ;
 	float b = iterX;
 	col = iterZ;
-		gl_Position = Mprojo* vec4(aPosition - vec3(1.2*b,2.,1.2*a), 1.0);
+		gl_Position = Mprojo*MVMatrix *vec4(aPosition , 1.0);
 	}
