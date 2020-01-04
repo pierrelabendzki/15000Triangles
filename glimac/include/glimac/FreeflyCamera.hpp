@@ -1,5 +1,3 @@
-
-
 class FreeflyCamera{
 	glm::vec3 m_Position;
 	float m_fPhi;

@@ -10,7 +10,10 @@ uniform mat4 MVMatrix;
 uniform mat4 NormalMatrix;
 uniform mat4 MatrixView;
 
+uniform vec3 uColor;
 
+out vec3 vs_color;
 void main() {
+		vs_color = uColor;
 		gl_Position = Mprojo*MatrixView*MVMatrix *NormalMatrix*vec4(aPosition , 1.0);
 	}

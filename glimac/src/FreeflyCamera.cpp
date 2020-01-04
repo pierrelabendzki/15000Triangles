@@ -15,12 +15,12 @@ using namespace glimac;
 
 
 FreeflyCamera::FreeflyCamera(){
-	m_Position = glm::vec3(0.,0.,0.);
+	m_Position = glm::vec3(0.,5.,0.);
 	m_fPhi = PI;
 	m_fTheta = 0.;
 	m_FrontVector = glm::vec3(0.,0.,-1.);
 	m_LeftVector = glm::vec3(1.,0.,0.);
-	m_UpVector = glm::vec3(0.,-1.,0.);
+	m_UpVector = glm::vec3(0.,1.,0.);
 }
 
 FreeflyCamera::FreeflyCamera(const float x, const float y, const float z, const float Phi, const float Teta){
@@ -33,11 +33,11 @@ FreeflyCamera::FreeflyCamera(const float x, const float y, const float z, const 
 }
 
 void FreeflyCamera::moveLeft(float t){
-	m_Position+=t*glm::vec3(1.,0.,0.);
+	m_Position+=t*glm::vec3(-cos(m_fPhi),0.,sin(m_fPhi));
 }
 
 void FreeflyCamera::moveFront(float t){
-	m_Position+=t*glm::vec3(0.,0.,1.);
+	m_Position+=t*glm::vec3(-sin(m_fPhi),0.,-cos(m_fPhi));
 }
 
 void FreeflyCamera::moveUp(float t){
