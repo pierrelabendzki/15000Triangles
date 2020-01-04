@@ -134,8 +134,17 @@ float tabPositions[] = {
 
 
 
+
     Cube3D cube2(1.,10.,2.,  1.,1.,1.);
     Cube3D cube3(10.,10.,2., 0.,0.,0.);
+    Cube3D cube4(10.,1.,5.,  1.,0.,1.);
+    Cube3D cube5(10.,-5.,5., 0.,1.,0.);
+
+    std::vector<Cube3D> cubesList = {cube2,cube3,cube4,cube5};
+
+
+   
+
     bool affiche = true;
        
     // Application loop:
@@ -148,6 +157,10 @@ float tabPositions[] = {
                 done = true; // Leave the loop after this iteration
             }
             switch(e.type){
+                case SDL_MOUSEBUTTONUP:
+                    std::cout<<"clic en "<<e.button.x<<"  ; "<<e.button.y<<std::endl;
+
+                   break;
                 case SDL_MOUSEMOTION:
                     if (SDL_BUTTON(SDL_BUTTON_LEFT) & e.motion.state)
                     {   
@@ -233,9 +246,21 @@ float tabPositions[] = {
 
         scene.show(cube2.getDisplay(),cube2,program.getGLId());
         scene.show(cube3.getDisplay(),cube3,program.getGLId());
-        
-        // scene.destroy(cube3,program.getGLId());
+        scene.show(cube4.getDisplay(),cube4,program.getGLId());
+        scene.show(cube5.getDisplay(),cube5,program.getGLId());
 
+
+        
+        glm::vec2 coordWindowCub;
+        // scene.destroy(cube3,program.getGLId());
+        for(int i = 0; i<cubesList.size(); i++){
+            coordWindowCub[0]=(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cubesList[i].getPosition(),1.0))[0];   
+            coordWindowCub[1]=(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cubesList[i].getPosition(),1.0))[1];       
+            std::cout<<"norm  de "<<i+2<<" :  "<<coordWindowCub[0]*coordWindowCub[0] +coordWindowCub[1]*coordWindowCub[1]<<std::endl;
+        }
+        std::cout<<(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cube3.getPosition(),1.0))<<std::endl;
+        std::cout<<(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cube2.getPosition(),1.0))<<std::endl;
+         // std::cout<< (glm::inverse(Mprojo*MatrixView*MVMatrix)*glm::vec4(1,10,2,1))[0]<<(glm::inverse(Mprojo*MatrixView*MVMatrix *NormalMatrix)*glm::vec4(1,10,2,1))[1]<<std::endl;
 
 
         // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
