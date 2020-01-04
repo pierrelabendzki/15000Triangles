@@ -50,9 +50,15 @@ public:
 	void addCube(Cube3D cube, int programID){
 		glm::mat4 MVMatrix= glm::translate(glm::mat4(), glm::vec3(cube.getPosition()[0],cube.getPosition()[1], cube.getPosition()[2]));
     	GLuint MVMatrixID = glGetUniformLocation(programID,"MVMatrix");
-
     	glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
+    	
+
+    	glm::vec3 uColor = cube.getColor();
+    	GLuint uColorID = glGetUniformLocation(programID,"uColor");
+    	glUniform3f(uColorID,uColor[0],uColor[1],uColor[2]);
+
     	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
     	nbCubes++;
     }
 
@@ -61,10 +67,10 @@ public:
 			addCube(cube,programID);
 	}
 
-	bool destroy(Cube3D cube, int programID){
-		show(false, cube, programID);
-		// std::cout<<"alerte"<<std::endl;
-		cube.~Cube3D();
-		return false;
-	}
+	// bool destroy(Cube3D cube, int programID){
+	// 	show(false, cube, programID);
+	// 	// std::cout<<"alerte"<<std::endl;
+	// 	cube.~Cube3D();
+	// 	return false;
+	// }
 };

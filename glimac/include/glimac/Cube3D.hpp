@@ -24,7 +24,7 @@ public:
 
 public:
 	Cube3D();
-	Cube3D(const float x, const float y, const float z);
+	Cube3D(const float x, const float y, const float z, const float R, const float G, const float B);
 
 glm::vec3 getPosition();
 glm::vec3 getColor();

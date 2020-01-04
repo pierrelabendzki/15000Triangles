@@ -20,5 +20,8 @@ public:
 	void moveUp(float t);
 	glm::mat4 getViewMatrix()const;
 
+	glm::vec3 getPosition();
+	void drawCursor(glm::mat4 matriceProj,glm::mat4 MVMatrix,glm::mat4 NormalMatrix,int programID);
+
 };
 

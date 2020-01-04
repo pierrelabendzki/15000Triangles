@@ -9,6 +9,7 @@
 #include "glimac/FreeflyCamera.hpp"
 #include "glimac/Cube3D.hpp"
 #include "glimac/Scene.hpp"
+#include "glimac/Cursor.hpp"
 
 
 using namespace glimac;
@@ -18,6 +19,8 @@ int main(int argc, char** argv) {
 
     FreeflyCamera camera;
     Scene scene;
+    Cursor cursor;
+    
 
     // Initialize SDL and open a window
     float speed= 50; 
@@ -101,6 +104,8 @@ float tabPositions[] = {
 
     GLuint vertexArrayID;
 
+
+
     glGenVertexArrays(1,&vertexArrayID);
     glBindVertexArray(vertexArrayID);
     glBindBuffer(GL_ARRAY_BUFFER,vbPositionsID);
@@ -108,10 +113,6 @@ float tabPositions[] = {
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),0);
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
-
-    glm::vec3 uColor = glm::vec3(0.5,0.6,0.7);
-    GLuint uColorID = glGetUniformLocation(program.getGLId(),"uColor");
-    glUniform3f(uColorID,uColor[0],uColor[1],uColor[2]);
 
     glm::mat4 Mprojo = glm::perspective(glm::radians(70.f),RATIO,0.1f,1000.f);
     GLuint MprojoID = glGetUniformLocation(program.getGLId(),"Mprojo");
@@ -133,8 +134,8 @@ float tabPositions[] = {
 
 
 
-    Cube3D cube2(1.,10.,2.);
-    Cube3D cube3(10.,10.,2.);
+    Cube3D cube2(1.,10.,2.,  1.,1.,1.);
+    Cube3D cube3(10.,10.,2., 0.,0.,0.);
     bool affiche = true;
        
     // Application loop:
@@ -228,9 +229,11 @@ float tabPositions[] = {
         //             glUniformMatrix4fv(MatrixViewID,1,GL_FALSE,glm::value_ptr(MatrixView));
 
         // affiche=scene.destroy(cube3,program.getGLId());
+
+
         scene.show(cube2.getDisplay(),cube2,program.getGLId());
         scene.show(cube3.getDisplay(),cube3,program.getGLId());
-
+        
         // scene.destroy(cube3,program.getGLId());
 
 
@@ -240,7 +243,7 @@ float tabPositions[] = {
         for (int i = -30; i < 30 ; i++) {//on crée un pavage de 60 cubes sur 60 centré en 0.
             for(int j = -30; j < 30 ; j++) {
                 for(int k =-2; k<1;k++){
-                    Cube3D cubePave(i,k,j);
+                    Cube3D cubePave(i,k,j, 0.5,0.6,0.7);
                     scene.addCube(cubePave,program.getGLId());
                     // MVMatrix= glm::translate(glm::mat4(), glm::vec3(i, k, j));
                     // glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
@@ -250,7 +253,10 @@ float tabPositions[] = {
             }
         }
         MatrixView = camera.getViewMatrix();
-                    glUniformMatrix4fv(MatrixViewID,1,GL_FALSE,glm::value_ptr(MatrixView));
+        glUniformMatrix4fv(MatrixViewID,1,GL_FALSE,glm::value_ptr(MatrixView));
+
+        // cursor.drawCursor(program.getGLId(),Mprojo*MatrixView ,camera.getPosition());
+        camera.drawCursor(Mprojo,MVMatrix, NormalMatrix,program.getGLId());
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
         

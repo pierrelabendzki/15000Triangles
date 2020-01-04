@@ -34,9 +34,9 @@ Cube3D::Cube3D(){
  //        0,5,6, 0,6,1
  //    };
 	}
-Cube3D::Cube3D(const float x, const float y, const float z){
+Cube3D::Cube3D(const float x, const float y, const float z, const float R, const float G, const float B){
 	m_Position = glm::vec3(x,y,z);
-	m_Color = glm::vec3(1.,1.,1.);
+	m_Color = glm::vec3(R,G,B);
 	m_display = true;
 	// m_tabPositions = {
 	// 	x+0.5,y+0.5,z+0.5,

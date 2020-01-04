@@ -16,4 +16,5 @@ out vec3 vs_color;
 void main() {
 		vs_color = uColor;
 		gl_Position = Mprojo*MatrixView*MVMatrix *NormalMatrix*vec4(aPosition , 1.0);
+		
 	}
