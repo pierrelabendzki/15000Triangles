@@ -149,8 +149,7 @@ float tabPositions[] = {
     // Cube3D cube4(10.,1.,5.,  1.,0.,1.);
     // Cube3D cube5(10.,5.,5., 0.,1.,0.);
 
-
-
+Cube3D cubeGhost;
    std::vector<Cube3D> cubesList = {};
    for (int i = -10; i < 10 ; i++) {//on crée un pavage de 60 cubes sur 60 centré en 0.
             for(int j = -10; j < 10 ; j++) {
@@ -164,8 +163,8 @@ float tabPositions[] = {
                 }
             }
         }
-
-        
+int countPushTab = 0;
+int pos = 0;
 
     bool affiche = true;
        
@@ -280,13 +279,7 @@ float tabPositions[] = {
             cubesList.pop_back();
         }
 
-        if (pKeyboard[SDLK_n] && indiceMinimumCubeZ >=0 ) {
-            Cube3D cubeNew(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1]+1.,cubesList[indiceMinimumCubeZ].getPosition()[2],  1.,1.,1.);
-            if(!cubeNew.getDansLaListe()){
-                cubesList.push_back(cubeNew);
-                cubeNew.setDansLaListe(true);
-            }
-        }
+        
         if (pKeyboard[SDLK_j] && indiceMinimumCubeZ >=0 ) {
             Cube3D cubeNew(cubesList[indiceMinimumCubeZ].getPosition()[0]+1,cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2],  1.,1.,1.);
             if(!cubeNew.getDansLaListe()){
@@ -294,6 +287,36 @@ float tabPositions[] = {
                 cubeNew.setDansLaListe(true);
            }
         }
+
+        
+        scene.showGhost(cubeGhost.getDisplay(),cubeGhost,program.getGLId());
+        if(pos==0)cubeGhost.setPosition(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1]+1.,cubesList[indiceMinimumCubeZ].getPosition()[2]));
+        if(pos==1)cubeGhost.setPosition(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0]+1,cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]));
+        if(pos==2)cubeGhost.setPosition(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]+1));
+        if(pos==3)cubeGhost.setPosition(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0]-1,cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]));
+        if(pos==4)cubeGhost.setPosition(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]-1));
+        if(pos==5)cubeGhost.setPosition(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1]-1.,cubesList[indiceMinimumCubeZ].getPosition()[2]));
+        
+        cubeGhost.setColor(glm::vec3(1-cubesList[indiceMinimumCubeZ].getColor()[0],1-cubesList[indiceMinimumCubeZ].getColor()[1],1-cubesList[indiceMinimumCubeZ].getColor()[2]));
+            
+        if (pKeyboard[SDLK_n] && indiceMinimumCubeZ >=0 ) {
+            // Cube3D cubeNew(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1]+1.,cubesList[indiceMinimumCubeZ].getPosition()[2],  1.,1.,1.);
+            Cube3D cubeNew(cubeGhost.getPosition()[0],cubeGhost.getPosition()[1],cubeGhost.getPosition()[2],1.,1.,1.);
+            if(!cubeNew.getDansLaListe()){
+                cubesList.push_back(cubeNew);
+                cubeNew.setDansLaListe(true);
+            }
+        }
+
+        // std::vector<glm::vec3> posCubeGhots;
+        // posCubeGhots.push_back(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0]+1,cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]));
+        // posCubeGhots.push_back(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]+1));
+        // posCubeGhots.push_back(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1]-1.,cubesList[indiceMinimumCubeZ].getPosition()[2]));
+        // posCubeGhots.push_back(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0]-1,cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]));
+        // posCubeGhots.push_back(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]-1));
+
+        
+
              switch(e.type){
                
                 // case SDL_MOUSEMOTION:
@@ -307,6 +330,16 @@ float tabPositions[] = {
                     // AXE : x=0 y=1 z=2
                     if (e.key.keysym.sym == SDLK_h && indiceMinimumCubeZ >=0 ) {
                         cubesList[indiceMinimumCubeZ].setDisplay(!cubesList[indiceMinimumCubeZ].getDisplay());
+                    }
+                    if (e.key.keysym.sym == SDLK_TAB && indiceMinimumCubeZ >=0 ) {
+                        
+                        countPushTab++;
+                        if (countPushTab > 5){
+                            pos ++;
+                            pos = pos%6;
+                            countPushTab = 0;
+                        }
+                        
                     }
 
                     // if (e.key.keysym.sym == SDLK_c && indiceMinimumCubeZ >=0){           

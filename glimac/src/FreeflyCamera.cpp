@@ -78,7 +78,7 @@ void FreeflyCamera::drawCursor(glm::mat4 matriceProj,glm::mat4 Mvmatrix,glm::mat
         Cube3D cubeHor(0,0,0, 1,0,0);
         glDisable(GL_DEPTH_TEST); 
         // glm::mat4 MVMatrix=glm::inverse(matriceProj*getViewMatrix*MVMatrix *NormalMatrix);
-        glm::mat4 MVMatrix=glm::inverse(NormalMatrix*matriceProj*getViewMatrix() *NormalMatrix)*glm::scale(glm::mat4(), glm::vec3(0.1,0.01,1 ));
+        glm::mat4 MVMatrix=glm::inverse(NormalMatrix*matriceProj*getViewMatrix() *NormalMatrix)*glm::scale(glm::mat4(), glm::vec3(0.05,0.005,1 ));
         GLuint MVMatrixID = glGetUniformLocation(programID,"MVMatrix");
         glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
         
@@ -90,7 +90,7 @@ void FreeflyCamera::drawCursor(glm::mat4 matriceProj,glm::mat4 Mvmatrix,glm::mat
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 
-        MVMatrix=glm::inverse(NormalMatrix*matriceProj*getViewMatrix() *NormalMatrix)*glm::scale(glm::mat4(), glm::vec3(0.01,0.1,1 ));
+        MVMatrix=glm::inverse(NormalMatrix*matriceProj*getViewMatrix() *NormalMatrix)*glm::scale(glm::mat4(), glm::vec3(0.005,0.05,1 ));
         MVMatrixID = glGetUniformLocation(programID,"MVMatrix");
         glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));        
 

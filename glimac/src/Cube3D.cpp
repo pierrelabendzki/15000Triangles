@@ -83,4 +83,8 @@ void Cube3D::setColor(glm::vec3 color){
 	m_Color = color;
 }
 
+void Cube3D::setPosition(glm::vec3 pos){
+	m_Position = pos;
+}
+
 

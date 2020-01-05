@@ -36,8 +36,7 @@ bool getDansLaListe();
 void setDisplay(bool display);
 void setDansLaListe(bool l);
 void setColor(glm::vec3 color);
-
-
+void setPosition(glm::vec3 pos);
 ~Cube3D() = default;
 
 };
