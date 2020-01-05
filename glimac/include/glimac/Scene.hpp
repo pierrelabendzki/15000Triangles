@@ -63,6 +63,7 @@ public:
     }
 
     void show(bool appear,Cube3D cube, int programID){
+		//std::cout<<"color cube : "<<cube.getColor()<<std::endl;
 		if(appear)
 			addCube(cube,programID);
 	}

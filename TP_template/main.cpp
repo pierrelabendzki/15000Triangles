@@ -10,6 +10,7 @@
 #include "glimac/Cube3D.hpp"
 #include "glimac/Scene.hpp"
 #include "glimac/Cursor.hpp"
+#include <stdlib.h>
 
 
 using namespace glimac;
@@ -23,7 +24,7 @@ int main(int argc, char** argv) {
     
 
     // Initialize SDL and open a window
-    float speed= 50; 
+    float speed= 20; 
     int LONGUEUR = 800;
     int HAUTEUR = 800;
     float RATIO = LONGUEUR/HAUTEUR;
@@ -138,11 +139,9 @@ float tabPositions[] = {
     Cube3D cube2(1.,10.,2.,  1.,1.,1.);
     Cube3D cube3(10.,10.,2., 0.,0.,0.);
     Cube3D cube4(10.,1.,5.,  1.,0.,1.);
-    Cube3D cube5(10.,-5.,5., 0.,1.,0.);
+    Cube3D cube5(10.,5.,5., 0.,1.,0.);
 
     std::vector<Cube3D> cubesList = {cube2,cube3,cube4,cube5};
-
-
    
 
     bool affiche = true;
@@ -171,10 +170,10 @@ float tabPositions[] = {
                 case SDL_KEYDOWN:
                     // AXE : x=0 y=1 z=2
                     if (e.key.keysym.sym == SDLK_a) {
-                        cube2.setDisplay(!cube2.getDisplay());
+                        cubesList[0].setDisplay(!cubesList[0].getDisplay());
                     }
                     if (e.key.keysym.sym == SDLK_b) {
-                        cube3.setDisplay(!cube3.getDisplay());
+                        cubesList[1].setDisplay(!cubesList[1].getDisplay());
                     }
                     /*if (e.key.keysym.sym == SDLK_z) {
                         camera.moveFront(-0.1);
@@ -244,25 +243,60 @@ float tabPositions[] = {
         // affiche=scene.destroy(cube3,program.getGLId());
 
 
-        scene.show(cube2.getDisplay(),cube2,program.getGLId());
-        scene.show(cube3.getDisplay(),cube3,program.getGLId());
-        scene.show(cube4.getDisplay(),cube4,program.getGLId());
-        scene.show(cube5.getDisplay(),cube5,program.getGLId());
+        scene.show(cubesList[0].getDisplay(),cubesList[0],program.getGLId());
+        scene.show(cubesList[1].getDisplay(),cubesList[1],program.getGLId());
+        scene.show(cubesList[2].getDisplay(),cubesList[2],program.getGLId());
+        scene.show(cubesList[3].getDisplay(),cubesList[3],program.getGLId());
 
+    std::vector<int> listCubesCandidats; 
 
-        
-        glm::vec2 coordWindowCub;
+         
+
+        glm::vec3 coordWindowCub;
         // scene.destroy(cube3,program.getGLId());
         for(int i = 0; i<cubesList.size(); i++){
             coordWindowCub[0]=(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cubesList[i].getPosition(),1.0))[0];   
-            coordWindowCub[1]=(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cubesList[i].getPosition(),1.0))[1];       
-            std::cout<<"norm  de "<<i+2<<" :  "<<coordWindowCub[0]*coordWindowCub[0] +coordWindowCub[1]*coordWindowCub[1]<<std::endl;
+            coordWindowCub[1]=(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cubesList[i].getPosition(),1.0))[1];
+            // std::cout<<"norm  de "<<i+2<<" :  "<<coordWindowCub[0]*coordWindowCub[0] +coordWindowCub[1]*coordWindowCub[1]<<std::endl;    
+            if(coordWindowCub[0]*coordWindowCub[0] +coordWindowCub[1]*coordWindowCub[1] < 0.5){
+                listCubesCandidats.push_back(i);
+                // std::cout<<"cube visé : "<< i <<std::endl;
+
+            }
+            else{
+                // std::cout<<"pas de cube visé"<<std::endl;
+            }
         }
-        std::cout<<(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cube3.getPosition(),1.0))<<std::endl;
-        std::cout<<(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cube2.getPosition(),1.0))<<std::endl;
-         // std::cout<< (glm::inverse(Mprojo*MatrixView*MVMatrix)*glm::vec4(1,10,2,1))[0]<<(glm::inverse(Mprojo*MatrixView*MVMatrix *NormalMatrix)*glm::vec4(1,10,2,1))[1]<<std::endl;
 
 
+                // std::cout<< (glm::inverse(Mprojo*MatrixView*MVMatrix)*glm::vec4(1,10,2,1))[0]<<(glm::inverse(Mprojo*MatrixView*MVMatrix *NormalMatrix)*glm::vec4(1,10,2,1))[1]<<std::endl;
+
+        float minimumZ = 100000.;
+        int indiceMinimumCubeZ = 0;
+
+        for(int i = 0; i<listCubesCandidats.size(); i++){
+            for(int j = 0; j<listCubesCandidats.size();j++){
+                // std::cout<<listCubesCandidats[j]<<',';
+            }
+            // std::cout<<" "<<std::endl;
+             // std::cout<<"           cube visé avant le IF    : "<< listCubesCandidats[i] <<std::endl;
+                if(abs((MatrixView*MVMatrix*NormalMatrix*glm::vec4(cubesList[listCubesCandidats[i]].getPosition(),1.0))[2]) < minimumZ){
+                    // std::cout<<"cube visé aapres le IF : "<< listCubesCandidats[i] <<std::endl;
+                    minimumZ = abs((MatrixView*MVMatrix*NormalMatrix*glm::vec4(cubesList[listCubesCandidats[i]].getPosition(),1.0))[2]);
+                    indiceMinimumCubeZ = listCubesCandidats[i];
+                }
+                    // std::cout<<"min : "<<minimumZ<<std::endl;
+                     // std::cout<<(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cube3.getPosition(),1.0))<<std::endl;
+        // std::cout<<(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cube2.getPosition(),1.0))<<std::endl;
+
+        }
+        // std::cout<<"indice min : "<<indiceMinimumCubeZ<<std::endl;
+
+        //std::cout<<"Cube selectionne :: ==>>>  cube "<<indiceMinimumCubeZ + 2<<std::endl;
+            if (pKeyboard[SDLK_c]){           
+             std::cout<<"J'appuie sur C"<< cubesList[indiceMinimumCubeZ].getColor()<<std::endl;
+             cubesList[indiceMinimumCubeZ].setColor(glm::vec3(1.,0.,0.));
+            }
         // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
         
         for (int i = -30; i < 30 ; i++) {//on crée un pavage de 60 cubes sur 60 centré en 0.

@@ -32,6 +32,7 @@ glm::vec3 getColor();
 bool getDisplay();
 
 void setDisplay(bool display);
+void setColor(glm::vec3 color);
 
 
 ~Cube3D() = default;

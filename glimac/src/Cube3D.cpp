@@ -72,5 +72,8 @@ bool Cube3D::getDisplay(){
 void Cube3D::setDisplay(bool display){
 	m_display = display;
 }
+void Cube3D::setColor(glm::vec3 color){
+	m_Color = color;
+}
 
 
