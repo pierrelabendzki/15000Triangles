@@ -3,6 +3,7 @@ public:
 	glm::vec3 m_Position /*= glm::vec3(0.,0.,0.)*/;
 	glm::vec3 m_Color /*= glm::vec3(1.,1.,1.)*/;
 	bool m_display;
+	bool m_estDansLaListe;
 	// std::vector<float> m_tabPositions/* = {
 	// 	0.5,0.5,0.5,
 	// 	-0.5,0.5,0.5,
@@ -30,8 +31,10 @@ glm::vec3 getPosition();
 glm::vec3 getColor();
 
 bool getDisplay();
+bool getDansLaListe();
 
 void setDisplay(bool display);
+void setDansLaListe(bool l);
 void setColor(glm::vec3 color);
 
 

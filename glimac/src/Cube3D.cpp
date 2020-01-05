@@ -15,6 +15,7 @@ Cube3D::Cube3D(){
 	m_Position = glm::vec3(0.,0.,0.);
 	m_Color = glm::vec3(1.,1.,1.);
 	m_display = true;
+	m_estDansLaListe = false;
 	// m_tabPositions = {
 	// 	0.5,0.5,0.5,
 	// 	-0.5,0.5,0.5,
@@ -68,9 +69,15 @@ glm::vec3 Cube3D::getColor(){
 bool Cube3D::getDisplay(){
 	return m_display;
 }
+bool Cube3D::getDansLaListe(){
+	return m_estDansLaListe;
+}
 
 void Cube3D::setDisplay(bool display){
 	m_display = display;
+}
+void Cube3D::setDansLaListe(bool l){
+	m_estDansLaListe = l;
 }
 void Cube3D::setColor(glm::vec3 color){
 	m_Color = color;

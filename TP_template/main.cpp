@@ -81,6 +81,8 @@ float tabPositions[] = {
     glBindBuffer(GL_ARRAY_BUFFER,0);
     
 
+
+
     GLuint ibPositionsID;
     glGenBuffers(1, &ibPositionsID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibPositionsID);
@@ -103,14 +105,7 @@ float tabPositions[] = {
     
 
 
-    GLuint vbPositionsCubesID;
-    glGenBuffers(1, &vbPositionsCubesID); 
-    glBindBuffer(GL_ARRAY_BUFFER, vbPositionsCubesID); 
-
-
     GLuint vertexArrayID;
-
-
 
     glGenVertexArrays(1,&vertexArrayID);
     glBindVertexArray(vertexArrayID);
@@ -119,6 +114,14 @@ float tabPositions[] = {
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),0);
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
+
+
+
+////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////
+
 
     glm::mat4 Mprojo = glm::perspective(glm::radians(70.f),RATIO,0.1f,1000.f);
     GLuint MprojoID = glGetUniformLocation(program.getGLId(),"Mprojo");
@@ -141,16 +144,18 @@ float tabPositions[] = {
 
 
 
-    Cube3D cube2(1.,10.,2.,  1.,1.,1.);
-    Cube3D cube3(10.,10.,2., 0.,0.,0.);
-    Cube3D cube4(10.,1.,5.,  1.,0.,1.);
-    Cube3D cube5(10.,5.,5., 0.,1.,0.);
+    // Cube3D cube2(1.,10.,2.,  1.,1.,1.);
+    // Cube3D cube3(10.,10.,2., 0.,0.,0.);
+    // Cube3D cube4(10.,1.,5.,  1.,0.,1.);
+    // Cube3D cube5(10.,5.,5., 0.,1.,0.);
 
-    std::vector<Cube3D> cubesList = {cube2,cube3,cube4,cube5};
+
+
+   std::vector<Cube3D> cubesList = {};
    for (int i = -10; i < 10 ; i++) {//on crée un pavage de 60 cubes sur 60 centré en 0.
             for(int j = -10; j < 10 ; j++) {
                 for(int k =-2; k<1;k++){
-                    Cube3D cubePave(i,k,j, 0.5,0.6,0.7);
+                    Cube3D cubePave(i,k/*+5*sin(k/2)+ 10*cos(i/2)*/,j, 0.5,0.6,0.7);
                     cubesList.push_back(cubePave);
                     // MVMatrix= glm::translate(glm::mat4(), glm::vec3(i, k, j));
                     // glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
@@ -159,6 +164,8 @@ float tabPositions[] = {
                 }
             }
         }
+
+        
 
     bool affiche = true;
        
@@ -171,8 +178,20 @@ float tabPositions[] = {
             if(e.type == SDL_QUIT) {
                 done = true; // Leave the loop after this iteration
             }
-           
+         
+         switch(e.type){
+             case SDL_MOUSEBUTTONUP:
+                    std::cout<<"clic en "<<e.button.x<<"  ; "<<e.button.y<<std::endl;
 
+                   break;
+            case SDL_MOUSEMOTION:
+                    if (SDL_BUTTON(SDL_BUTTON_LEFT) & e.motion.state)
+                    {   
+                        camera.rotateLeft(-e.motion.xrel);
+                        camera.rotateUp(-e.motion.yrel);
+                    }
+                    break;  
+                }
 
         }
            
@@ -208,7 +227,6 @@ float tabPositions[] = {
         }
         
         
-        
 
         std::vector<int> listCubesCandidats;  
 
@@ -222,10 +240,6 @@ float tabPositions[] = {
                 listCubesCandidats.push_back(i);
                 // std::cout<<"cube visé : "<< i <<std::endl;
 
-            }
-            else{
-                // std::cout<<"pas de cube visé"<<std::endl;
-                // listCubesCandidats.push_back(-1);
             }
         }
 
@@ -256,35 +270,69 @@ float tabPositions[] = {
         //std::cout<<"Cube selectionne :: ==>>>  cube "<<indiceMinimumCubeZ + 2<<std::endl;
            
 
-             
+        if (pKeyboard[SDLK_c] && indiceMinimumCubeZ >=0){           
+            std::cout<<"J'appuie sur C"<< cubesList[indiceMinimumCubeZ].getColor()<<std::endl;
+            cubesList[indiceMinimumCubeZ].setColor(glm::vec3(1.,0.,0.));
+        }
+        if (pKeyboard[SDLK_x] && indiceMinimumCubeZ >=0){           
+         // std::cout<<"J'appuie sur x pour supprimer le cube "<< cubesList[indiceMinimumCubeZ]<<std::endl;
+            std::swap(cubesList[indiceMinimumCubeZ],cubesList[cubesList.size()-1]);
+            cubesList.pop_back();
+        }
 
+        if (pKeyboard[SDLK_n] && indiceMinimumCubeZ >=0 ) {
+            Cube3D cubeNew(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1]+1.,cubesList[indiceMinimumCubeZ].getPosition()[2],  1.,1.,1.);
+            if(!cubeNew.getDansLaListe()){
+                cubesList.push_back(cubeNew);
+                cubeNew.setDansLaListe(true);
+            }
+        }
+        if (pKeyboard[SDLK_j] && indiceMinimumCubeZ >=0 ) {
+            Cube3D cubeNew(cubesList[indiceMinimumCubeZ].getPosition()[0]+1,cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2],  1.,1.,1.);
+            if(!cubeNew.getDansLaListe()){
+                cubesList.push_back(cubeNew);
+                cubeNew.setDansLaListe(true);
+           }
+        }
              switch(e.type){
-                case SDL_MOUSEBUTTONUP:
-                    std::cout<<"clic en "<<e.button.x<<"  ; "<<e.button.y<<std::endl;
-
-                   break;
-                case SDL_MOUSEMOTION:
-                    if (SDL_BUTTON(SDL_BUTTON_LEFT) & e.motion.state)
-                    {   
-                        camera.rotateLeft(e.motion.xrel);
-                        camera.rotateUp(e.motion.yrel);
-                    }
-                    break;
+               
+                // case SDL_MOUSEMOTION:
+                //     if (SDL_BUTTON(SDL_BUTTON_LEFT) & e.motion.state)
+                //     {   
+                //         camera.rotateLeft(e.motion.xrel);
+                //         camera.rotateUp(e.motion.yrel);
+                //     }
+                //     break;
                 case SDL_KEYDOWN:
                     // AXE : x=0 y=1 z=2
                     if (e.key.keysym.sym == SDLK_h && indiceMinimumCubeZ >=0 ) {
                         cubesList[indiceMinimumCubeZ].setDisplay(!cubesList[indiceMinimumCubeZ].getDisplay());
                     }
 
-                    if (e.key.keysym.sym == SDLK_c && indiceMinimumCubeZ >=0){           
-                        std::cout<<"J'appuie sur C"<< cubesList[indiceMinimumCubeZ].getColor()<<std::endl;
-                        cubesList[indiceMinimumCubeZ].setColor(glm::vec3(1.,0.,0.));
-                    }
-                    if (e.key.keysym.sym == SDLK_x && indiceMinimumCubeZ >=0){           
-             // std::cout<<"J'appuie sur x pour supprimer le cube "<< cubesList[indiceMinimumCubeZ]<<std::endl;
-                        std::swap(cubesList[indiceMinimumCubeZ],cubesList[cubesList.size()-1]);
-                        cubesList.pop_back();
-                    }
+                    // if (e.key.keysym.sym == SDLK_c && indiceMinimumCubeZ >=0){           
+                    //     std::cout<<"J'appuie sur C"<< cubesList[indiceMinimumCubeZ].getColor()<<std::endl;
+                    //     cubesList[indiceMinimumCubeZ].setColor(glm::vec3(1.,0.,0.));
+                    // }
+             //        if (e.key.keysym.sym == SDLK_x && indiceMinimumCubeZ >=0){           
+             // // std::cout<<"J'appuie sur x pour supprimer le cube "<< cubesList[indiceMinimumCubeZ]<<std::endl;
+             //            std::swap(cubesList[indiceMinimumCubeZ],cubesList[cubesList.size()-1]);
+             //            cubesList.pop_back();
+             //        }
+                    // if (e.key.keysym.sym == SDLK_n && indiceMinimumCubeZ >=0 ) {
+                    //     Cube3D cubeNew(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1]+1.,cubesList[indiceMinimumCubeZ].getPosition()[2],  1.,1.,1.);
+                    //     if(!cubeNew.getDansLaListe()){
+                    //         cubesList.push_back(cubeNew);
+                    //         cubeNew.setDansLaListe(true);
+                    //     }
+                    // }
+                    // if (e.key.keysym.sym == SDLK_j && indiceMinimumCubeZ >=0 ) {
+                    //     Cube3D cubeNew(cubesList[indiceMinimumCubeZ].getPosition()[0]+1,cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2],  1.,1.,1.);
+                    //     if(!cubeNew.getDansLaListe()){
+                    //         cubesList.push_back(cubeNew);
+                    //         cubeNew.setDansLaListe(true);
+                    //     }
+
+                   // }
                     break;
                     /*if (e.key.keysym.sym == SDLK_z) {
                         camera.moveFront(-0.1);
