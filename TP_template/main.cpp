@@ -1,22 +1,19 @@
 #include <glimac/SDLWindowManager.hpp>
+// #include <SDL2/SDL.h>
 #include <GL/glew.h>
 #include <glimac/FilePath.hpp>
 #include <glimac/Program.hpp>
-
 #include <utility>
 #include <iostream>
 #include <vector>
 #include <stdlib.h>
 #include <algorithm>
-
 #include <glm/glm.hpp> 
 #include <glm/gtc/matrix_transform.hpp>
 #include "glimac/FreeflyCamera.hpp"
 #include "glimac/Cube3D.hpp"
 #include "glimac/Scene.hpp"
-#include "glimac/Cursor.hpp"
-
-
+#include "glimac/GestionCube.hpp"
 
 using namespace glimac;
 
@@ -25,7 +22,7 @@ int main(int argc, char** argv) {
 
     FreeflyCamera camera;
     Scene scene;
-    Cursor cursor;
+    GestionCube gestion;
     
 
     // Initialize SDL and open a window
@@ -51,7 +48,6 @@ int main(int argc, char** argv) {
     Program program = loadProgram(applicationPath.dirPath() + "shaders/"+argv[1],applicationPath.dirPath() + "shaders/"+argv[2]);
     program.use();
 
-    Cube3D cube;
     // Cube3D cube1(2.,10.,0.);
 
     /*********************************
@@ -116,13 +112,6 @@ float tabPositions[] = {
     glBindVertexArray(0);
 
 
-
-////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////
-
-
     glm::mat4 Mprojo = glm::perspective(glm::radians(70.f),RATIO,0.1f,1000.f);
     GLuint MprojoID = glGetUniformLocation(program.getGLId(),"Mprojo");
     glUniformMatrix4fv(MprojoID,1,GL_FALSE,glm::value_ptr(Mprojo));
@@ -139,9 +128,27 @@ float tabPositions[] = {
     GLuint MatrixViewID = glGetUniformLocation(program.getGLId(),"MatrixView");
 
     Uint8* pKeyboard = SDL_GetKeyState(NULL); //pour vérifier l'état des touches enfoncées.
-    
+    // Uint8 pMouse = SDL_GetMouseState(NULL,NULL); //pour vérifier l'état des touches enfoncées.
 
+    glm::vec3 uKd ;
+    GLuint uKdID = glGetUniformLocation(program.getGLId(),"uKd");
+    glUniform3f(uKdID,uKd[0],uKd[1],uKd[2]);
 
+    glm::vec3 uKs ;
+    GLuint uKsID = glGetUniformLocation(program.getGLId(),"uKs");
+    glUniform3f(uKsID,uKs[0],uKs[1],uKs[2]);
+
+    float uShininess ;
+    GLuint uShininessID = glGetUniformLocation(program.getGLId(),"uShininess");
+    glUniform1f(uShininessID,uShininess);
+
+    glm::vec3 uLightDir_vs = glm::vec3(1.,1.,1.);
+    GLuint uLightDir_vsID = glGetUniformLocation(program.getGLId(),"uLightDir_vsd");
+    glUniform3f(uLightDir_vsID,uLightDir_vs[0],uLightDir_vs[1],uLightDir_vs[2]);
+
+    glm::vec3 uLightIntensity ;
+    GLuint uLightIntensityID = glGetUniformLocation(program.getGLId(),"uLightIntensity");
+    glUniform3f(uLightIntensityID,uLightIntensity[0],uLightIntensity[1],uLightIntensity[2]);
 
 
     // Cube3D cube2(1.,10.,2.,  1.,1.,1.);
@@ -149,23 +156,37 @@ float tabPositions[] = {
     // Cube3D cube4(10.,1.,5.,  1.,0.,1.);
     // Cube3D cube5(10.,5.,5., 0.,1.,0.);
 
-Cube3D cubeGhost;
-   std::vector<Cube3D> cubesList = {};
-   for (int i = -10; i < 10 ; i++) {//on crée un pavage de 60 cubes sur 60 centré en 0.
-            for(int j = -10; j < 10 ; j++) {
-                for(int k =-2; k<1;k++){
-                    Cube3D cubePave(i,k/*+5*sin(k/2)+ 10*cos(i/2)*/,j, 0.5,0.6,0.7);
-                    cubesList.push_back(cubePave);
-                    // MVMatrix= glm::translate(glm::mat4(), glm::vec3(i, k, j));
-                    // glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
-                    
-                    // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-                }
+    
+
+
+    Cube3D cubeGhost;
+    std::vector<Cube3D> cubesList = {};
+    for (int i = -10; i < 10 ; i++) {//on crée un pavage de 60 cubes sur 60 centré en 0.
+        for(int j = -10; j < 10 ; j++) {
+            for(int k =-2; k<1;k++){
+                Cube3D cubePave(i,k,j, 0.5,0.6,0.7);
+                cubesList.push_back(cubePave);
+                // MVMatrix= glm::translate(glm::mat4(), glm::vec3(i, k, j));
+                // glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
+                
+                // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
             }
         }
-int countPushTab = 0;
-int pos = 0;
+    }
 
+    float R = 1.;
+    float G = 0.;
+    float B = 0.;
+    // float incremR = 1;
+    // float incremG = 0;
+    // float incremB = 0;
+
+    float x;
+
+    int countPushTab = 0;
+    int pos = 0;
+    int TabIsPressed = 0;
+    int HIsPressed = 0;
     bool affiche = true;
        
     // Application loop:
@@ -179,12 +200,29 @@ int pos = 0;
             }
          
          switch(e.type){
+             // case SDL_BUTTON_WHEELDOWN:
+             //        std::cout<<"scrool for lumière  "<<std::endl;
+             //        R =R+0.01;
+             //        G=G+0.01;
+             //        B=B +0.01;
+
+             //       break;
+            // case SDL_MOUSEBUTTONDOWN:
+            //     if (SDL_BUTTON(SDL_BUTTON_LEFT)){
+            //         std::cout<<"Clique Gauche"<<std::endl;
+            //     }
+            //     else if (SDL_BUTTON(SDL_BUTTON_RIGHT)){
+            //         std::cout<<"Clique Droit"<<std::endl;
+            //     }
+                
+
              case SDL_MOUSEBUTTONUP:
-                    std::cout<<"clic en "<<e.button.x<<"  ; "<<e.button.y<<std::endl;
+                    // std::cout<<"clic en "<<e.button.x<<"  ; "<<e.button.y<<std::endl;
 
                    break;
+            
             case SDL_MOUSEMOTION:
-                    if (SDL_BUTTON(SDL_BUTTON_LEFT) & e.motion.state)
+                    if (SDL_BUTTON(SDL_BUTTON_MIDDLE) & e.motion.state)
                     {   
                         camera.rotateLeft(-e.motion.xrel);
                         camera.rotateUp(-e.motion.yrel);
@@ -195,6 +233,7 @@ int pos = 0;
         }
            
         // déplacements au clavier.    
+
         if (pKeyboard[SDLK_z]) camera.moveFront(-0.01*speed);
         if (pKeyboard[SDLK_s]) camera.moveFront(0.01*speed);
         if (pKeyboard[SDLK_q]) camera.moveLeft(-0.01*speed);
@@ -208,204 +247,173 @@ int pos = 0;
         glBindVertexArray(vertexArrayID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibPositionsID);
 
-        //  MVMatrix= glm::translate(glm::mat4(), glm::vec3(3., 10., 0.));
-        //             glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
-        //             MatrixView = camera.getViewMatrix();
-        //             glUniformMatrix4fv(MatrixViewID,1,GL_FALSE,glm::value_ptr(MatrixView));
-        //             glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-
-        // MVMatrix= glm::translate(glm::mat4(), glm::vec3(1., 10., 0.));
-        //             glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
-        //             MatrixView = camera.getViewMatrix();
-        //             glUniformMatrix4fv(MatrixViewID,1,GL_FALSE,glm::value_ptr(MatrixView));
-
-        // affiche=scene.destroy(cube3,program.getGLId());
-
         for (int i =0; i < cubesList.size(); i++){
             scene.show(cubesList[i].getDisplay(),cubesList[i],program.getGLId());
         }
         
-        
+        // à la ligne qui suit on détermine le cube selectionné par le curseur. Tout se fait dans la classe GestionCube.
+        int indiceMinimumCubeZ = gestion.indiceMinimumCubeZ(MatrixView,MVMatrix,NormalMatrix,cubesList);
 
-        std::vector<int> listCubesCandidats;  
-
-        glm::vec3 coordWindowCub;
-        // scene.destroy(cube3,program.getGLId());
-        for(int i = 0; i<cubesList.size(); i++){
-            coordWindowCub[0]=(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cubesList[i].getPosition(),1.0))[0];   
-            coordWindowCub[1]=(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cubesList[i].getPosition(),1.0))[1];
-            // std::cout<<"norm  de "<<i+2<<" :  "<<coordWindowCub[0]*coordWindowCub[0] +coordWindowCub[1]*coordWindowCub[1]<<std::endl;    
-            if(coordWindowCub[0]*coordWindowCub[0] +coordWindowCub[1]*coordWindowCub[1] < 0.5){
-                listCubesCandidats.push_back(i);
-                // std::cout<<"cube visé : "<< i <<std::endl;
-
-            }
-        }
-
-
-                // std::cout<< (glm::inverse(Mprojo*MatrixView*MVMatrix)*glm::vec4(1,10,2,1))[0]<<(glm::inverse(Mprojo*MatrixView*MVMatrix *NormalMatrix)*glm::vec4(1,10,2,1))[1]<<std::endl;
-
-        float minimumZ = 100000.;
-        int indiceMinimumCubeZ = -1;
-
-        for(int i = 0; i<listCubesCandidats.size(); i++){
-            for(int j = 0; j<listCubesCandidats.size();j++){
-                // std::cout<<listCubesCandidats[j]<<',';
-            }
-            // std::cout<<" "<<std::endl;
-             // std::cout<<"           cube visé avant le IF    : "<< listCubesCandidats[i] <<std::endl;
-                if(abs((MatrixView*MVMatrix*NormalMatrix*glm::vec4(cubesList[listCubesCandidats[i]].getPosition(),1.0))[2]) < minimumZ){
-                    // std::cout<<"cube visé aapres le IF : "<< listCubesCandidats[i] <<std::endl;
-                    minimumZ = abs((MatrixView*MVMatrix*NormalMatrix*glm::vec4(cubesList[listCubesCandidats[i]].getPosition(),1.0))[2]);
-                    indiceMinimumCubeZ = listCubesCandidats[i];
-                }
-                    // std::cout<<"min : "<<minimumZ<<std::endl;
-                     // std::cout<<(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cube3.getPosition(),1.0))<<std::endl;
-        // std::cout<<(MatrixView*MVMatrix*NormalMatrix*glm::vec4(cube2.getPosition(),1.0))<<std::endl;
-
-        }
-        // std::cout<<"indice min : "<<indiceMinimumCubeZ<<std::endl;
-
-        //std::cout<<"Cube selectionne :: ==>>>  cube "<<indiceMinimumCubeZ + 2<<std::endl;
-           
+        // R = (cubesList[indiceMinimumCubeZ].getColor())[0]; 
+        // G = (cubesList[indiceMinimumCubeZ].getColor())[1];
+        // B = (cubesList[indiceMinimumCubeZ].getColor())[2];
 
         if (pKeyboard[SDLK_c] && indiceMinimumCubeZ >=0){           
             std::cout<<"J'appuie sur C"<< cubesList[indiceMinimumCubeZ].getColor()<<std::endl;
-            cubesList[indiceMinimumCubeZ].setColor(glm::vec3(1.,0.,0.));
+            cubesList[indiceMinimumCubeZ].setColor(glm::vec3(R,G,B));
         }
+
+
+        if (pKeyboard[SDLK_p] && indiceMinimumCubeZ >=0){           
+            R = cubesList[indiceMinimumCubeZ].getColor()[0];
+            G = cubesList[indiceMinimumCubeZ].getColor()[1];
+            B = cubesList[indiceMinimumCubeZ].getColor()[2];
+        }
+
         if (pKeyboard[SDLK_x] && indiceMinimumCubeZ >=0){           
          // std::cout<<"J'appuie sur x pour supprimer le cube "<< cubesList[indiceMinimumCubeZ]<<std::endl;
             std::swap(cubesList[indiceMinimumCubeZ],cubesList[cubesList.size()-1]);
             cubesList.pop_back();
         }
 
-        
-        if (pKeyboard[SDLK_j] && indiceMinimumCubeZ >=0 ) {
-            Cube3D cubeNew(cubesList[indiceMinimumCubeZ].getPosition()[0]+1,cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2],  1.,1.,1.);
-            if(!cubeNew.getDansLaListe()){
-                cubesList.push_back(cubeNew);
-                cubeNew.setDansLaListe(true);
-           }
-        }
 
         
         scene.showGhost(cubeGhost.getDisplay(),cubeGhost,program.getGLId());
-        if(pos==0)cubeGhost.setPosition(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1]+1.,cubesList[indiceMinimumCubeZ].getPosition()[2]));
-        if(pos==1)cubeGhost.setPosition(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0]+1,cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]));
-        if(pos==2)cubeGhost.setPosition(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]+1));
-        if(pos==3)cubeGhost.setPosition(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0]-1,cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]));
-        if(pos==4)cubeGhost.setPosition(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]-1));
-        if(pos==5)cubeGhost.setPosition(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1]-1.,cubesList[indiceMinimumCubeZ].getPosition()[2]));
-        
+        scene.setGhostCubePosition(pos,cubeGhost,cubesList[indiceMinimumCubeZ]); // on indique au cube Fantôme ses positions en fonction de son cube Père.
         cubeGhost.setColor(glm::vec3(1-cubesList[indiceMinimumCubeZ].getColor()[0],1-cubesList[indiceMinimumCubeZ].getColor()[1],1-cubesList[indiceMinimumCubeZ].getColor()[2]));
             
-        if (pKeyboard[SDLK_n] && indiceMinimumCubeZ >=0 ) {
+        
+
+        if (pKeyboard[SDLK_n] && indiceMinimumCubeZ >=0 ) {//ici on crée les nouveaux cubes.
             // Cube3D cubeNew(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1]+1.,cubesList[indiceMinimumCubeZ].getPosition()[2],  1.,1.,1.);
-            Cube3D cubeNew(cubeGhost.getPosition()[0],cubeGhost.getPosition()[1],cubeGhost.getPosition()[2],1.,1.,1.);
-            if(!cubeNew.getDansLaListe()){
+            Cube3D cubeNew(cubeGhost.getPosition()[0],cubeGhost.getPosition()[1],cubeGhost.getPosition()[2],R,G,B);
+            
+
+            if(!cubeNew.getDansLaListe() && !(  cubeNew.getPosition() == cubesList.back().getPosition() ) ){ /* La deuxième condition du IF permet d'empêcher la création d'un cube à 
+                                                                                                                la même place que celui qui vient d'être construit précédemment.
+                                                                                                                Utile lorsqu'on clique deux fois sans faire exprès.
+                                                                                                            */
                 cubesList.push_back(cubeNew);
                 cubeNew.setDansLaListe(true);
             }
         }
-
-        // std::vector<glm::vec3> posCubeGhots;
-        // posCubeGhots.push_back(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0]+1,cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]));
-        // posCubeGhots.push_back(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]+1));
-        // posCubeGhots.push_back(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1]-1.,cubesList[indiceMinimumCubeZ].getPosition()[2]));
-        // posCubeGhots.push_back(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0]-1,cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]));
-        // posCubeGhots.push_back(glm::vec3(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2]-1));
-
         
+        if(pKeyboard[SDLK_TAB]){
+            TabIsPressed = 1;
+        }
+        if (TabIsPressed==1){
+            if(!pKeyboard[SDLK_TAB]){
+                TabIsPressed = 0;
+                pos ++;
+                pos = pos%6;
+            }  
+        }
 
-             switch(e.type){
-               
-                // case SDL_MOUSEMOTION:
-                //     if (SDL_BUTTON(SDL_BUTTON_LEFT) & e.motion.state)
-                //     {   
-                //         camera.rotateLeft(e.motion.xrel);
-                //         camera.rotateUp(e.motion.yrel);
-                //     }
-                //     break;
-                case SDL_KEYDOWN:
-                    // AXE : x=0 y=1 z=2
-                    if (e.key.keysym.sym == SDLK_h && indiceMinimumCubeZ >=0 ) {
-                        cubesList[indiceMinimumCubeZ].setDisplay(!cubesList[indiceMinimumCubeZ].getDisplay());
-                    }
-                    if (e.key.keysym.sym == SDLK_TAB && indiceMinimumCubeZ >=0 ) {
-                        
-                        countPushTab++;
-                        if (countPushTab > 5){
-                            pos ++;
-                            pos = pos%6;
-                            countPushTab = 0;
-                        }
-                        
-                    }
-
-                    // if (e.key.keysym.sym == SDLK_c && indiceMinimumCubeZ >=0){           
-                    //     std::cout<<"J'appuie sur C"<< cubesList[indiceMinimumCubeZ].getColor()<<std::endl;
-                    //     cubesList[indiceMinimumCubeZ].setColor(glm::vec3(1.,0.,0.));
-                    // }
-             //        if (e.key.keysym.sym == SDLK_x && indiceMinimumCubeZ >=0){           
-             // // std::cout<<"J'appuie sur x pour supprimer le cube "<< cubesList[indiceMinimumCubeZ]<<std::endl;
-             //            std::swap(cubesList[indiceMinimumCubeZ],cubesList[cubesList.size()-1]);
-             //            cubesList.pop_back();
-             //        }
-                    // if (e.key.keysym.sym == SDLK_n && indiceMinimumCubeZ >=0 ) {
-                    //     Cube3D cubeNew(cubesList[indiceMinimumCubeZ].getPosition()[0],cubesList[indiceMinimumCubeZ].getPosition()[1]+1.,cubesList[indiceMinimumCubeZ].getPosition()[2],  1.,1.,1.);
-                    //     if(!cubeNew.getDansLaListe()){
-                    //         cubesList.push_back(cubeNew);
-                    //         cubeNew.setDansLaListe(true);
-                    //     }
-                    // }
-                    // if (e.key.keysym.sym == SDLK_j && indiceMinimumCubeZ >=0 ) {
-                    //     Cube3D cubeNew(cubesList[indiceMinimumCubeZ].getPosition()[0]+1,cubesList[indiceMinimumCubeZ].getPosition()[1],cubesList[indiceMinimumCubeZ].getPosition()[2],  1.,1.,1.);
-                    //     if(!cubeNew.getDansLaListe()){
-                    //         cubesList.push_back(cubeNew);
-                    //         cubeNew.setDansLaListe(true);
-                    //     }
-
-                   // }
-                    break;
-                    /*if (e.key.keysym.sym == SDLK_z) {
-                        camera.moveFront(-0.1);
-                    }
-                    else if (e.key.keysym.sym == SDLK_s) {
-                        camera.moveFront(0.1);
-                    }
-                    else if (e.key.keysym.sym == SDLK_q) {
-                        camera.moveLeft(-0.1);
-                    }
-                    else if (e.key.keysym.sym == SDLK_d) {
-                        camera.moveLeft(0.1);
-                    }
-                    else if (e.key.keysym.sym == SDLK_UP) {
-                        camera.moveUp(0.1);
-                    }
-                    else if (e.key.keysym.sym == SDLK_DOWN) {
-                        camera.moveUp(-0.1);
-                    }
-                case SDL_KEYUP:
-                    if (e.key.keysym.sym == SDLK_z) {
-                        camera.moveFront(-0.1);
-                    }
-                    //  else if (e.key.keysym.scancode == SDL_SCANCODE_Y) {
-                    //     axe = 1;
-                    // } else if (e.key.keysym.scancode == SDL_SCANCODE_W) { 
-                    //     axe = 2; 
-                    // }
-
-                    // if (e.key.keysym.sym == SDLK_UP) {
-                    //     cursor.changeCoord(axe, 1);
-                    //     std::cout<<"en haut"<<std::endl;
-                    // } else if (e.key.keysym.sym == SDLK_DOWN){
-                    //     cursor.changeCoord(axe, -1);
-                    //     std::cout<<"en bas"<< cursor.coord <<std::endl;
-                    // }*/
+        if (e.type == SDL_MOUSEBUTTONUP){
+            if(e.button.button == SDL_BUTTON_WHEELUP){
+                std::cout<<"scrollUP"<<std::endl;
+            
+            // R = cubesList[indiceMinimumCubeZ].getColor()[0];
+            // G = cubesList[indiceMinimumCubeZ].getColor()[1];
+            // B = cubesList[indiceMinimumCubeZ].getColor()[2];
+                R = cubesList[indiceMinimumCubeZ].getColor()[0];
+            G = cubesList[indiceMinimumCubeZ].getColor()[1];
+            B = cubesList[indiceMinimumCubeZ].getColor()[2];
+                if(R<=2. && G<=2. && B<=2.){
+                    R +=0.01;
+                    G +=0.01;
+                    B +=0.01;
+                }
+                cubesList[indiceMinimumCubeZ].setColor(glm::vec3(R,G,B));
+            }
+            if(e.button.button == SDL_BUTTON_WHEELDOWN){
+                std::cout<<"scrollDown"<<std::endl;
+            
+            // R = cubesList[indiceMinimumCubeZ].getColor()[0];
+            // G = cubesList[indiceMinimumCubeZ].getColor()[1];
+            // B = cubesList[indiceMinimumCubeZ].getColor()[2];
+                R = cubesList[indiceMinimumCubeZ].getColor()[0];
+            G = cubesList[indiceMinimumCubeZ].getColor()[1];
+            B = cubesList[indiceMinimumCubeZ].getColor()[2];
+                if(R>=-1. && G>=-1. && B>=-1.){
+                    R -=0.01;
+                    G -=0.01;
+                    B -=0.01;
+                }
+                cubesList[indiceMinimumCubeZ].setColor(glm::vec3(R,G,B));
             }
 
+        }
+        if (SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(SDL_BUTTON_LEFT)){  
+            std::cout<<"gauche"<<std::endl;
+            R = cubesList[indiceMinimumCubeZ].getColor()[0];
+            
+            G = cubesList[indiceMinimumCubeZ].getColor()[1];
+            B = cubesList[indiceMinimumCubeZ].getColor()[2];
+            // if(incremG <1. && abs(incremB)<0.05){
+            //     incremR-=0.01;
+            //     incremG+=0.01;
+            // }   
+            // if(incremB<1. && abs(incremR)<0.05){
+            //     incremG-=0.01;
+            //     incremB+=0.01;
+            // }
+            // if(incremR<1. && abs(incremG)<0.05){
+            //     incremB-=0.01;
+            //     incremR+=0.01;
+            // }
+            x+=0.02;
+            R = (cos(x));
+            G = (cos(x+2.09439*0.5));
+            B = (cos(x+2.09439));
+
+            cubesList[indiceMinimumCubeZ].setColor(glm::vec3(R, G, B));
+
+        }
+        if (SDL_GetMouseState(NULL,NULL)&SDL_BUTTON(SDL_BUTTON_RIGHT)){
+            std::cout<<"droite"<<std::endl;
+            R = cubesList[indiceMinimumCubeZ].getColor()[0];
+            G = cubesList[indiceMinimumCubeZ].getColor()[1];
+            B = cubesList[indiceMinimumCubeZ].getColor()[2];
+            
+            // if(!(G<1. && abs(B) < 0.05)){
+            //     R-=0.01;
+            //     G+=0.01;
+            // }
+            // if(!(B<1. && abs(R)<0.05)){
+            //     G-=0.01;
+            //     B+=0.01;
+            // }
+            // if(!(R<1. && abs(G)<0.05)){
+            //     B-=0.01;
+            //     R+=0.01;
+            // }
+            x-=0.02;
+            R = (cos(x));
+            G = (cos(x+2.09439*0.5));
+            B = (cos(x+2.09439));
+            cubesList[indiceMinimumCubeZ].setColor(glm::vec3(R,G,B));
+        }
+
+
+        if(pKeyboard[SDLK_h] && indiceMinimumCubeZ >=0){
+            //std::cout<<"gello"<<std::endl;
+            HIsPressed = 1;
+        }
+        if (HIsPressed==1){
+            if(!pKeyboard[SDLK_h]){
+                //std::cout<<"gezezezello"<<std::endl;
+
+                HIsPressed = 0;
+                cubesList[indiceMinimumCubeZ].setDisplay(!cubesList[indiceMinimumCubeZ].getDisplay());
+            }  
+        }        
+             
+
         // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-        
+        // R =0.5;
+        // G = 0.5;
+        // B = 0.5;
         
         MatrixView = camera.getViewMatrix();
         glUniformMatrix4fv(MatrixViewID,1,GL_FALSE,glm::value_ptr(MatrixView));
