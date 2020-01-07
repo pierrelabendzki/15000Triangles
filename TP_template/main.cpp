@@ -53,21 +53,58 @@ int main(int argc, char** argv) {
     /*********************************
      * HERE SHOULD COME THE INITIALIZATION CODE
      *********************************/
+    GLuint vao;
+
     GLuint vbPositionsID;
     glGenBuffers(1,&vbPositionsID);
     glBindBuffer(GL_ARRAY_BUFFER, vbPositionsID);
     
 
-float tabPositions[] = {
-            0.5,0.5,0.5,
-            -0.5,0.5,0.5,
-            -0.5,-0.5,0.5,
-            0.5,-0.5,0.5,
-            0.5,-0.5,-0.5,
-            0.5,0.5,-0.5,
-            -0.5,0.5,-0.5,
-            -0.5,-0.5,-0.5
-        };
+
+    float tabPositions[] = {
+        // Front face
+        -0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        // Back face
+        -0.5f, -0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+        // Top face
+        -0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f, -0.5f,
+        // Bot face 
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+        // Left face 
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
+        // Right face 
+         0.5f, -0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+    };
+
+
+// float tabPositions[] = {
+//             0.5,0.5,0.5,
+//             -0.5,0.5,0.5,
+//             -0.5,-0.5,0.5,
+//             0.5,-0.5,0.5,
+//             0.5,-0.5,-0.5,
+//             0.5,0.5,-0.5,
+//             -0.5,0.5,-0.5,
+//             -0.5,-0.5,-0.5
+//         };
     // for (int i=0; i<24; i++){
     //     // std::cout<<cube.m_tabPositions[i]<<std::endl;
     //     tabPositions[i]=cube.getPositions()[i];
@@ -75,7 +112,48 @@ float tabPositions[] = {
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(tabPositions), tabPositions, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER,0);
+
+GLuint normalesPositionsID;
+    glGenBuffers(1,&normalesPositionsID);
+    glBindBuffer(GL_ARRAY_BUFFER, normalesPositionsID);
+
+
+float normales[] = {
+        // Front face
+         0.0f,  0.0f,  1.0f,
+         0.0f,  0.0f,  1.0f,
+         0.0f,  0.0f,  1.0f,
+         0.0f,  0.0f,  1.0f,
+        // Back face
+         0.0f,  0.0f, -1.0f,
+         0.0f,  0.0f, -1.0f,
+         0.0f,  0.0f, -1.0f,
+         0.0f,  0.0f, -1.0f,
+        // Top face
+         0.0f,  1.0f,  0.0f,
+         0.0f,  1.0f,  0.0f,
+         0.0f,  1.0f,  0.0f,
+         0.0f,  1.0f,  0.0f,
+        // Bot face 
+         0.0f, -1.0f,  0.0f,
+         0.0f, -1.0f,  0.0f,
+         0.0f, -1.0f,  0.0f,
+         0.0f, -1.0f,  0.0f,
+        // Left face 
+        -1.0f,  0.0f,  0.0f,
+        -1.0f,  0.0f,  0.0f,
+        -1.0f,  0.0f,  0.0f,
+        -1.0f,  0.0f,  0.0f,
+        // Right face 
+         1.0f,  0.0f,  0.0f,
+         1.0f,  0.0f,  0.0f,
+         1.0f,  0.0f,  0.0f,
+         1.0f,  0.0f,  0.0f,
+    };
     
+    glBufferData(GL_ARRAY_BUFFER, sizeof(normales), normales, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+
 
 
 
@@ -83,14 +161,39 @@ float tabPositions[] = {
     glGenBuffers(1, &ibPositionsID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibPositionsID);
 
-    int indexSommets[]={
-            0,1,2, 0,2,3, // les deux premiers blocs de 3 coordonnées correspondent à la première face.
-            4,7,6, 4,6,5,
-            1,6,7, 1,7,2,
-            0,3,4, 0,4,5,
-            2,7,4, 2,4,3,
-            0,5,6, 0,6,1
-        };
+
+unsigned int indexSommets[] = {
+        // Back face
+        0, 1, 2,
+        0, 2, 3,
+        // Front face
+        4, 5, 6,
+        4, 6, 7,
+        // Top face
+        8, 9, 10,
+        8, 10, 11,
+        // Bottom face
+        12, 13 , 14,
+        12, 14, 15,
+        // Left face
+        16, 17 , 18,
+        16, 18, 19,
+        // Right face
+        20, 21 , 22,
+        20, 22, 23,
+    };
+
+
+
+
+    // int indexSommets[]={
+    //         0,1,2, 0,2,3, // les deux premiers blocs de 3 coordonnées correspondent à la première face.
+    //         4,7,6, 4,6,5,
+    //         1,6,7, 1,7,2,
+    //         0,3,4, 0,4,5,
+    //         2,7,4, 2,4,3,
+    //         0,5,6, 0,6,1
+    //     };
     // for (int i=0; i<36; i++){
     //     // std::cout<<cube.m_tabPositions[i]<<std::endl;
     //     indexSommets[i]=cube.getIndexSommets()[i];
@@ -103,13 +206,31 @@ float tabPositions[] = {
 
     GLuint vertexArrayID;
 
-    glGenVertexArrays(1,&vertexArrayID);
-    glBindVertexArray(vertexArrayID);
+    glGenVertexArrays(1,&vao);
+    glBindVertexArray(vao);
+    //glGenVertexArrays(1,&vertexArrayID);
+    //glBindVertexArray(vertexArrayID);
     glBindBuffer(GL_ARRAY_BUFFER,vbPositionsID);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),0);
+    // glBindBuffer(GL_ARRAY_BUFFER,0);
+    // glBindVertexArray(0);
+
+    
+   
+
+
+    GLuint normalesArrayID;
+
+    //glGenVertexArrays(1,&normalesArrayID);
+    //glBindVertexArray(normalesArrayID);
+    glBindBuffer(GL_ARRAY_BUFFER,normalesPositionsID);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,3*sizeof(float),0);
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
+
+
 
 
     glm::mat4 Mprojo = glm::perspective(glm::radians(70.f),RATIO,0.1f,1000.f);
@@ -130,23 +251,27 @@ float tabPositions[] = {
     Uint8* pKeyboard = SDL_GetKeyState(NULL); //pour vérifier l'état des touches enfoncées.
     // Uint8 pMouse = SDL_GetMouseState(NULL,NULL); //pour vérifier l'état des touches enfoncées.
 
-    glm::vec3 uKd ;
+   
+
+    glm::vec3 uKd = glm::vec3(0.6,0.6,0.6);
     GLuint uKdID = glGetUniformLocation(program.getGLId(),"uKd");
     glUniform3f(uKdID,uKd[0],uKd[1],uKd[2]);
 
-    glm::vec3 uKs ;
+    glm::vec3 uKs = glm::vec3(1,1,1);;
     GLuint uKsID = glGetUniformLocation(program.getGLId(),"uKs");
     glUniform3f(uKsID,uKs[0],uKs[1],uKs[2]);
 
-    float uShininess ;
+    float uShininess = 0.5;
     GLuint uShininessID = glGetUniformLocation(program.getGLId(),"uShininess");
     glUniform1f(uShininessID,uShininess);
 
-    glm::vec3 uLightDir_vs = glm::vec3(1.,1.,1.);
-    GLuint uLightDir_vsID = glGetUniformLocation(program.getGLId(),"uLightDir_vsd");
+    glm::vec4 vecTampon = MatrixView*glm::vec4(1.,1.,1.,0.);
+    glm::vec3 uLightDir_vs(glm::normalize(vecTampon));
+
+    GLuint uLightDir_vsID = glGetUniformLocation(program.getGLId(),"uLightDir_vs");
     glUniform3f(uLightDir_vsID,uLightDir_vs[0],uLightDir_vs[1],uLightDir_vs[2]);
 
-    glm::vec3 uLightIntensity ;
+    glm::vec3 uLightIntensity = glm::vec3(0.9,0.9,0.9);
     GLuint uLightIntensityID = glGetUniformLocation(program.getGLId(),"uLightIntensity");
     glUniform3f(uLightIntensityID,uLightIntensity[0],uLightIntensity[1],uLightIntensity[2]);
 
@@ -244,13 +369,21 @@ float tabPositions[] = {
          * HERE SHOULD COME THE RENDERING CODE
          *********************************/
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glBindVertexArray(vertexArrayID);
+//        glBindVertexArray(vertexArrayID);
+        glBindVertexArray(vao);
+
+        //glBindVertexArray(normalesPositionsID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibPositionsID);
+
+
+
 
         for (int i =0; i < cubesList.size(); i++){
             scene.show(cubesList[i].getDisplay(),cubesList[i],program.getGLId());
         }
         
+
+
         // à la ligne qui suit on détermine le cube selectionné par le curseur. Tout se fait dans la classe GestionCube.
         int indiceMinimumCubeZ = gestion.indiceMinimumCubeZ(MatrixView,MVMatrix,NormalMatrix,cubesList);
 
