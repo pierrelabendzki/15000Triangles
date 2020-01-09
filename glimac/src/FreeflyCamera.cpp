@@ -47,6 +47,7 @@ void FreeflyCamera::moveUp(float t){
 }
 
 
+
 void FreeflyCamera::rotateLeft(float degrees){
 	float rad = degrees*0.0174533;
 	m_fPhi +=rad;

@@ -14,8 +14,9 @@
 #include "glimac/Cube3D.hpp"
 #include "glimac/Scene.hpp"
 #include "glimac/GestionCube.hpp"
-
+#define PI 3.141592
 using namespace glimac;
+
 
 
 int main(int argc, char** argv) {
@@ -30,7 +31,7 @@ int main(int argc, char** argv) {
     int LONGUEUR = 800;
     int HAUTEUR = 800;
     float RATIO = LONGUEUR/HAUTEUR;
-    SDLWindowManager windowManager(LONGUEUR, HAUTEUR, "GLImac");
+    SDLWindowManager windowManager(LONGUEUR, HAUTEUR, "THE 15000 TRIANGLES EXPERIENCE");
     // Initialize glew for OpenGL3+ support
     GLenum glewInitError = glewInit();
     if(GLEW_OK != glewInitError) {
@@ -316,6 +317,7 @@ unsigned int indexSommets[] = {
        
     // Application loop:
     bool done = false;
+    bool fall = false;
     while(!done) {
         // Event loop:
         SDL_Event e;
@@ -339,7 +341,6 @@ unsigned int indexSommets[] = {
             //     else if (SDL_BUTTON(SDL_BUTTON_RIGHT)){
             //         std::cout<<"Clique Droit"<<std::endl;
             //     }
-                
 
              case SDL_MOUSEBUTTONUP:
                     // std::cout<<"clic en "<<e.button.x<<"  ; "<<e.button.y<<std::endl;
@@ -359,6 +360,7 @@ unsigned int indexSommets[] = {
            
         // déplacements au clavier.    
 
+    
         if (pKeyboard[SDLK_z]) camera.moveFront(-0.01*speed);
         if (pKeyboard[SDLK_s]) camera.moveFront(0.01*speed);
         if (pKeyboard[SDLK_q]) camera.moveLeft(-0.01*speed);
@@ -497,8 +499,8 @@ unsigned int indexSommets[] = {
             // }
             x+=0.02;
             R = (cos(x));
-            G = (cos(x+2.09439*0.5));
-            B = (cos(x+2.09439));
+            G = (cos(x+2.*PI/3.));
+            B = (cos(x-2.*PI/3.));
 
             cubesList[indiceMinimumCubeZ].setColor(glm::vec3(R, G, B));
 
@@ -523,8 +525,8 @@ unsigned int indexSommets[] = {
             // }
             x-=0.02;
             R = (cos(x));
-            G = (cos(x+2.09439*0.5));
-            B = (cos(x+2.09439));
+            G = (cos(x+2.*PI/3.));
+            B = (cos(x-2.*PI/3.));
             cubesList[indiceMinimumCubeZ].setColor(glm::vec3(R,G,B));
         }
 
