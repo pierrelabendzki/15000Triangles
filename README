@@ -1,0 +1,33 @@
+READ ME PIERRE LABENDZKI RUBEN BRAMI
+--- 15000 TRIANGLES ---
+
+
+pour lancer le jeu : 
+Ouvrir un terminal dans le dossier où se trouve le dossier 15000Triangles
+
+mkdir build
+cd build
+cmake ../15000Triangles
+make
+./TP_template/TP_template_main
+
+
+La notice de jeu se trouve dans le rapport.
+Nous la rappelons ici.
+
+z -> avancer
+s -> reculer
+q -> gauche
+d -> droite
+up -> haut
+down -> bas
+n-> créer un nouveau cube
+h -> cacher/afficher un cube
+c -> changer la couleur
+p -> scanner la couleur du cube selectionné
+tab -> changer la position cube fantôme
+souris gauche -> faire varier la couleur
+souris droit -> faire varier la couleur
+défiler molette -> augmenter/baisser luminosité
+appuyer molette -> rotation de la caméra
+

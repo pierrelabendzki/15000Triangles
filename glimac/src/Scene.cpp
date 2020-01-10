@@ -18,39 +18,7 @@ void Scene::addCube(Cube3D cube, int programID){
         GLuint MVMatrixID = glGetUniformLocation(programID,"MVMatrix");
         glUniformMatrix4fv(MVMatrixID,1,GL_FALSE,glm::value_ptr(MVMatrix));
         
-
-
-
         glm::vec3 uColor = cube.getColor();
-
- //        GLuint normalesPositionsID;
- //    glGenBuffers(1,&normalesPositionsID);
- //    glBindBuffer(GL_ARRAY_BUFFER, normalesPositionsID);
-
-
- // glm::vec3 normales[] = {
- //        // Front face
- //         uColor,uColor,uColor,uColor,
-         
- //        // Back face 
- //         uColor,uColor,uColor,uColor,
-        
- //        // Top face
- //         uColor,uColor,uColor,uColor,
-        
- //        // Bot face 
- //         uColor,uColor,uColor,uColor,
-         
- //        // Left face 
- //         uColor,uColor,uColor,uColor,
-        
- //        // Right face
- //        uColor,uColor,uColor,uColor,
- //          };
-    
- //    glBufferData(GL_ARRAY_BUFFER, sizeof(normales), normales, GL_STATIC_DRAW);
- //    glBindBuffer(GL_ARRAY_BUFFER,0);
-
 
         GLuint uColorID = glGetUniformLocation(programID,"uColor");
         glUniform3f(uColorID,uColor[0],uColor[1],uColor[2]);
@@ -77,13 +45,11 @@ void Scene::addCube(Cube3D cube, int programID){
     }
 
     void Scene::show(bool appear,Cube3D cube, int programID){
-        //std::cout<<"color cube : "<<cube.getColor()<<std::endl;
         if(appear)
             addCube(cube,programID);
     }
 
     void Scene::showGhost(bool appear,Cube3D cube, int programID){
-        //std::cout<<"color cube : "<<cube.getColor()<<std::endl;
         if(appear)
             addGhostCube(cube,programID);
     }
@@ -96,4 +62,30 @@ void Scene::addCube(Cube3D cube, int programID){
         if(pos==4)cubeGhost.setPosition(glm::vec3(cubePere.getPosition()[0],cubePere.getPosition()[1],cubePere.getPosition()[2]-1));
         if(pos==5)cubeGhost.setPosition(glm::vec3(cubePere.getPosition()[0],cubePere.getPosition()[1]-1.,cubePere.getPosition()[2]));
  
+    }
+
+    void Scene::creationBoule(glm::vec3 centreBoule,std::vector<Cube3D> &cubesList,int _rayon){
+    float colorBoule = 5.;
+	    float rayon = _rayon * 10.;
+	    for (int i = centreBoule[0]-rayon; i < centreBoule[0]+rayon ; i++) {//on crée un pavage de 60 cubes sur 60 centré en 0.
+	        for(int j= centreBoule[1]-rayon; j < centreBoule[1]+rayon; j++) {
+	            for(int k =centreBoule[2]-rayon; k < centreBoule[2]+rayon;k++){
+	                if(((i-centreBoule[0])*(i-centreBoule[0]) +(j-centreBoule[1])*(j-centreBoule[1]) +(k-centreBoule[2])*(k-centreBoule[2]) < rayon)&& !((i-centreBoule[0])*(i-centreBoule[0]) +(j-centreBoule[1])*(j-centreBoule[1]) +(k-centreBoule[2])*(k-centreBoule[2]) < rayon-_rayon*2.)){
+	                    Cube3D cubePave(i,k,j, colorBoule*(i-centreBoule[0])/rayon,colorBoule*(j-centreBoule[1])/rayon,colorBoule*(k-centreBoule[2])/rayon);
+	                    cubesList.push_back(cubePave);
+	                }
+	            }
+	         }
+	    }
+    }
+
+    void Scene::creationPavage(std::vector<Cube3D> &cubesList, int longueur, int largeur, float R, float G, float B){
+	    for (int i = -longueur*0.5; i < longueur*0.5 ; i++) {
+	        for(int j = -largeur*0.5; j < largeur*0.5 ; j++) {
+	            for(int k =-2; k<1;k++){
+	                Cube3D cubePave(i,k,j, R,G,B);
+	                cubesList.push_back(cubePave);
+	            }
+	        }
+	    }
     }
